@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>se.natusoft.tools</groupId>
+    <artifactId>asynctracker</artifactId>
+    <version>1.0</version>
+
+    <organization>
+        <name>Natusoft AB</name>
+        <url>https://github.com/tombensve/AsyncTracker</url>
+    </organization>
+    <inceptionYear>2012</inceptionYear>
+    <licenses>
+        <license>
+            <name>Apache 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <name>Tommy Svensson</name>
+            <email>tommy@natusoft.se</email>
+        </developer>
+    </developers>
+    <scm>
+        <connection>scm:https://github.com/tombensve/AsyncTracker.git</connection>
+        <url>scm:https://github.com/tombensve/AsyncTracker.git</url>
+    </scm>
+    <issueManagement>
+        <system>github</system>
+        <url>https://github.com/tombensve/AsyncTracker/issues</url>
+    </issueManagement>
+
+    <build>
+        <plugins>
+
+            <!--
+                Setup for java 8.
+            -->
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+
+            <!--
+                Define project assemblies.
+            -->
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.2.1</version>
+                <configuration>
+                    <descriptors>
+                        <descriptor>file:${basedir}/src/assembly/bin-dist.xml</descriptor>
+                    </descriptors>
+                </configuration>
+            </plugin>
+
+            <!--
+                Force checksums when installing to repository.
+
+                I suspect that this might be unneccesarry since I think
+                deploy creates checksums anyhow when deploying to external
+                repository.
+            -->
+            <plugin>
+                <artifactId>maven-install-plugin</artifactId>
+                <version>2.3.1</version>
+                <configuration>
+                    <createChecksum>true</createChecksum>
+                </configuration>
+            </plugin>
+
+            <!--
+                Copy relevant license files to target on install.
+            -->
+            <plugin>
+                <groupId>se.natusoft.tools.codelicmgr</groupId>
+                <artifactId>CodeLicenseManager-maven-plugin</artifactId>
+
+                <executions>
+                    <execution>
+                        <id>install-licence-info</id>
+                        <goals>
+                            <goal>install</goal>
+                        </goals>
+                        <phase>install</phase>
+                        <configuration>
+
+                            <installOptions>
+                                <verbose>true</verbose>
+                                <licenseDir>target/license</licenseDir>
+                                <thirdpartyLicenseDir>target/license/thirdparty</thirdpartyLicenseDir>
+                            </installOptions>
+
+                            <!--
+                                Here we add those that are not auto resolved.
+                            -->
+                            <thirdpartyLicenses>
+                                <license>
+                                    <type>OSGi</type>
+                                    <version>2.0</version>
+                                    <licenseProducts>
+                                        <product>
+                                            <name>org.osgi.compendium-4.2.0</name>
+                                            <web>http://www.osgi.org/</web>
+                                        </product>
+                                        <product>
+                                            <name>org.osgi.core-4.2.0</name>
+                                            <web>http://www.osgi.org/</web>
+                                        </product>
+                                    </licenseProducts>
+                                </license>
+                            </thirdpartyLicenses>
+
+                            <createLicensesMarkdown>true</createLicensesMarkdown>
+                            <markdownTargetSubdir>lics</markdownTargetSubdir>
+                            <markdownLinkPrefix>https://github.com/tombensve/APS/blob/master/lics/</markdownLinkPrefix>
+
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!--
+                This plugin was one of the answers for the problem of referring to paths relative to the top pom
+                no mather at what pom you start the build.
+
+                See: https://stackoverflow.com/questions/3084629/finding-the-root-directory-of-a-multi-module-maven-reactor-project
+
+                If I hadn't found this I would have made such a plugin myself! This is a constant problem with maven. Without
+                a feature like this it is very difficult to have common resources used in multiple modules. In this specific
+                case the markdown-doc plugin is run by the top pom, and is inherited by all other modules. It needs an
+                mss file with a full path passed to the plugin. This will differ depending if you build from top or a specific
+                submodule. So either I have to make every single submodule have its own copy of the mss file or a solution like
+                this to find the one and same mss file no matter if you build from top or only builds a submodule.
+
+                Another option also in the page above suggested defining a property in every pom, like "projectTopDir" or
+                something and then set it to the top path relative to itself. That would probably work. But you have to
+                modify all poms. And if you restructure it can break. This plugin solution seems much easier.
+            -->
+            <plugin>
+                <groupId>org.commonjava.maven.plugins</groupId>
+                <artifactId>directory-maven-plugin</artifactId>
+                <version>0.1</version>
+                <executions>
+                    <execution>
+                        <id>directories</id>
+                        <goals>
+                            <goal>highest-basedir</goal>
+                        </goals>
+                        <phase>initialize</phase>
+                        <configuration>
+                            <property>main.basedir</property>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+
+    </build>
+
+</project>

@@ -84,7 +84,11 @@ public class AsyncTracker {
      */
     public UUID newJob() {
 
-        if (this.state != State.RUNNING) throw new IllegalStateException( "Instance must be running for jobs to be created!" );
+        if (this.state != State.RUNNING)
+            throw new IllegalStateException( "Instance must be running for jobs to be created!" );
+
+        if (Thread.currentThread().getName().equals( "main" ))
+            throw new IllegalStateException( "This should not be called from 'main' thread!" );
 
         UUID jobId = UUID.randomUUID();
         this.jobs.put( jobId, jobId );
@@ -97,6 +101,9 @@ public class AsyncTracker {
      * @param jobId The id of the job to mark as done.
      */
     public void jobDone(UUID jobId) {
+
+        if (Thread.currentThread().getName().equals( "main" ))
+            throw new IllegalStateException( "This should not be called from 'main' thread!" );
 
         if (this.state == State.STOPPED || this.state == State.STARTING)
             throw new IllegalStateException( "Can't end a job when not running!" );

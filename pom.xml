@@ -163,6 +163,22 @@
             </plugin>
 
             <!--
+                Package sources.
+            -->
+            <plugin>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!--
                 This plugin was one of the answers for the problem of referring to paths relative to the top pom
                 no mather at what pom you start the build.
 
@@ -199,5 +215,13 @@
         </plugins>
 
     </build>
+
+    <distributionManagement>
+        <repository>
+            <id>bintray-tommy-maven</id>
+            <name>tommy-maven</name>
+            <url>https://api.bintray.com/maven/tommy/maven/AsyncTracker/;publish=1</url>
+        </repository>
+    </distributionManagement>
 
 </project>

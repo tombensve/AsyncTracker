@@ -35,6 +35,60 @@
     </issueManagement>
 
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.1</version>
+                </plugin>
+
+                <plugin>
+                    <artifactId>maven-install-plugin</artifactId>
+                    <version>2.4</version>
+                </plugin>
+
+                <plugin>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>2.2.1</version>
+                </plugin>
+
+                <plugin>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>2.2</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-antrun-plugin</artifactId>
+                    <version>1.7</version>
+                </plugin>
+
+                <plugin>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.1</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>se.natusoft.tools.codelicmgr</groupId>
+                    <artifactId>CodeLicenseManager-maven-plugin</artifactId>
+                    <version>2.2.0</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>build-helper-maven-plugin</artifactId>
+                    <version>1.8</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>se.natusoft.maven.plugin</groupId>
+                    <artifactId>ftp-maven-plugin</artifactId>
+                    <version>1.0.1</version>
+                </plugin>
+
+            </plugins>
+        </pluginManagement>
+
         <plugins>
 
             <!--
@@ -42,7 +96,6 @@
             -->
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
@@ -55,11 +108,6 @@
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>2.2.1</version>
-                <configuration>
-                    <descriptors>
-                        <descriptor>file:${basedir}/src/assembly/bin-dist.xml</descriptor>
-                    </descriptors>
-                </configuration>
             </plugin>
 
             <!--
@@ -103,20 +151,6 @@
                                 Here we add those that are not auto resolved.
                             -->
                             <thirdpartyLicenses>
-                                <license>
-                                    <type>OSGi</type>
-                                    <version>2.0</version>
-                                    <licenseProducts>
-                                        <product>
-                                            <name>org.osgi.compendium-4.2.0</name>
-                                            <web>http://www.osgi.org/</web>
-                                        </product>
-                                        <product>
-                                            <name>org.osgi.core-4.2.0</name>
-                                            <web>http://www.osgi.org/</web>
-                                        </product>
-                                    </licenseProducts>
-                                </license>
                             </thirdpartyLicenses>
 
                             <createLicensesMarkdown>true</createLicensesMarkdown>

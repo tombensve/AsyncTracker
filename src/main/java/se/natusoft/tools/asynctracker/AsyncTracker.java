@@ -84,9 +84,6 @@ public class AsyncTracker {
      */
     public UUID newJob() {
 
-        if (this.state != State.RUNNING)
-            throw new IllegalStateException( "Instance must be running for jobs to be created!" );
-
         UUID jobId = UUID.randomUUID();
         this.jobs.put( jobId, jobId );
         return jobId;
@@ -98,9 +95,6 @@ public class AsyncTracker {
      * @param jobId The id of the job to mark as done.
      */
     public void jobDone(UUID jobId) {
-
-        if (this.state == State.STOPPED || this.state == State.STARTING)
-            throw new IllegalStateException( "Can't end a job when not running!" );
 
         this.jobs.remove( jobId );
     }
@@ -122,9 +116,6 @@ public class AsyncTracker {
      * @throws Exception If called from wrong place.
      */
     public void waitForActiveJobs() throws Exception {
-
-        if (this.state != State.STOPPING) throw new IllegalStateException( "Instance must be stopping for active jobs to be waited for!" );
-
 
         while (hasActiveJobs()) {
 

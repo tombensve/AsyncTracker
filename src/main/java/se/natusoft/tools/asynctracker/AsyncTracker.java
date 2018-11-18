@@ -1,5 +1,7 @@
 package se.natusoft.tools.asynctracker;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -53,7 +55,11 @@ public class AsyncTracker {
     /** The jobs tracked. */
     private Map<UUID, UUID> jobs = Collections.synchronizedMap(new LinkedHashMap<>(  ));
 
+    /** The current state. */
     private State state = State.STOPPED;
+
+    /** Tracks the last job of a series of sequentian jobs. */
+    private Instant lastJobDone = null;
 
     /**
      * Private constructor forcing the get(name) method.
@@ -63,6 +69,9 @@ public class AsyncTracker {
     /**
      * Changes state of this instance.
      *
+     * This actually does nothing other than setting this.state to the passed value!
+     * The state value is for user use if wanted it does not affect AsyncTracker functionality.
+     *
      * @param state The state to set.
      */
     void setState(State state) {
@@ -71,6 +80,8 @@ public class AsyncTracker {
     }
 
     /**
+     * The state value is for user use if wanted it does not affect AsyncTracker functionality.
+     *
      * @return The state of this instance.
      */
     State getState() {
@@ -113,16 +124,64 @@ public class AsyncTracker {
      *
      * This must be called from main thread!
      *
-     * @throws Exception If called from wrong place.
+     * @throws IllegalStateException with a wrapped InterruptedException if it occurs.
      */
-    public void waitForActiveJobs() throws Exception {
+    public void waitForActiveJobs() {
 
         while (hasActiveJobs()) {
 
-            Thread.sleep( 500 );
+            try {
+                Thread.sleep( 500 );
+            }
+            catch ( InterruptedException ie ) {
+                throw new IllegalStateException( ie.getMessage(), ie );
+            }
         }
 
         this.state = State.STOPPED;
+    }
+
+    /**
+     * This marks "last job" as done with a timestamp of when. The idea for this is that when there
+     * are several consecutive jobs in a thread pool they will be started in order even if executing in
+     * parallel and might take different time to finish. This is the reason for the secondsToAdd.
+     * "lastJobDone()" will not return true until Instant.now() is greater than "now" of this method +
+     * secondsToAdd.
+     *
+     * Yes, this is a bit of a guess.
+     *
+     * The idea here is to only track the last job, assuming that is known, and then assume that
+     * all previous jobs are also done after the last job is done + extra time.
+     *
+     * This is of course an alternative to newJob() / jobDone(uuid).
+     */
+    public void markLastJobDone(int secondsToAdd) {
+        this.lastJobDone = Instant.now();
+        this.lastJobDone = this.lastJobDone.plus( secondsToAdd, ChronoUnit.SECONDS );
+    }
+
+    /**
+     * @return true if now has passed markLastJobDone(seconds) time + seconds.
+     */
+    @SuppressWarnings("WeakerAccess")
+    public boolean lastJobDone() {
+        return this.lastJobDone != null && this.lastJobDone.isBefore( Instant.now() );
+    }
+
+    /**
+     * Waits for 'last job done' to be marked as true.
+     *
+     * @throws IllegalStateException with a wrapped InterruptedException if it occurs.
+     */
+    public void waitForLastJobDone()  {
+        while(!lastJobDone()) {
+            try {
+                Thread.sleep( 500 );
+            }
+            catch ( InterruptedException ie ) {
+                throw new IllegalStateException( ie.getMessage(), ie );
+            }
+        }
     }
 
     public synchronized void start() {

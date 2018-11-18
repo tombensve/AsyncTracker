@@ -5,6 +5,8 @@ Utility for tracking async threaded jobs. This to be able to wait for unfinished
 This is trivially easy. newJob() returns an UUID, which is also stored in a map. jobDone(uuid) removes the UUID.
 waitForActiveJobs() just waits for the map to become empty.
 
+Why ? Becuase there is asynchronous frameworks out there that just pull the capet out under your feet when shuting down, not waiting for running jobs to finish first.
+
 ## Active jobs example
 
     something.forEach((someEntry) -> {

@@ -32,7 +32,9 @@ Since waitForActiveJobs() does Thread.sleep(...) it should preferably only be ca
 
 ## Last job example
 
-This is an alternative and only tracks the last job in the case you know what is the last job. Since there is the possibility of earlier jobs taking longer time to complete than the last job, the number of seconds to add to "now" is passed to `...markLastJobDone(sec)`. How much of a "guesstimate" this is, is up to you.
+This is an alternative and only tracks the last job in the case you know what is the last job. Since there is the possibility of earlier jobs taking longer time to complete than the last job, the number of seconds to add to "now" is passed to `...markLastJobDone(sec)`. How much of a "guesstimate" this is, is up to you. **Do note** that this is a bit dangerous and can fail since it is quite difficult to guess how much extra time to give it and result can easily differ on different machines. 
+
+If you do know that the last job really is the job that finishes last then this can safely be used with an argument of 0. This is really the lazy option! The normal usage above is much better.
 
     someJob.doSomething(What ever, (res) -> {
 
